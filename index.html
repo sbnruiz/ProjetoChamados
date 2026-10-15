@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Entrar | Central de Chamados</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="login-pagina">
+    <section class="card login-card" aria-labelledby="titulo-login">
+      <div class="marca"><span class="marca-icone" aria-hidden="true">CC</span> Central de Chamados</div>
+      <div>
+        <h1 id="titulo-login" style="font-size: 20px">Entrar</h1>
+        <p class="muted">Acompanhe chamados de suporte, indicadores de atendimento e a qualidade dos dados.</p>
+      </div>
+
+      <p id="aviso-login" class="aviso" hidden></p>
+
+      <form id="form-login" novalidate>
+        <label>Usuário
+          <input type="text" name="username" autocomplete="username" required />
+        </label>
+        <label>Senha
+          <input type="password" name="password" autocomplete="current-password" required />
+        </label>
+        <button type="submit" class="btn btn-primary">Entrar</button>
+      </form>
+
+      <div class="credenciais muted">
+        <span>Conta de teste: <code>emilys</code> / <code>emilyspass</code></span>
+        <button type="button" class="btn btn-sm" id="preencher-teste">Preencher</button>
+      </div>
+    </section>
+  </div>
+  <script type="module" src="js/pages/login.js"></script>
+</body>
+</html>

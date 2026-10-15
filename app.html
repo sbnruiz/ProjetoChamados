@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Central de Chamados</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="marca"><span class="marca-icone" aria-hidden="true">CC</span> Central de Chamados</div>
+    <div class="usuario">
+      <span class="avatar" id="avatar" aria-hidden="true"></span>
+      <span id="nome-usuario" class="secondary"></span>
+      <button type="button" class="btn btn-sm" id="sair">Sair</button>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="Seções">
+    <button class="tab" role="tab" data-aba="indicadores" aria-controls="aba-indicadores">Indicadores</button>
+    <button class="tab" role="tab" data-aba="chamados" aria-controls="aba-chamados">Chamados <span class="contador" id="contador-backlog"></span></button>
+    <button class="tab" role="tab" data-aba="qualidade" aria-controls="aba-qualidade">Qualidade dos dados <span class="contador" id="contador-qualidade"></span></button>
+  </nav>
+
+  <p id="aviso-conexao" class="aviso" hidden style="margin: 16px 24px 0"></p>
+
+  <!-- ===================== INDICADORES ===================== -->
+  <main id="aba-indicadores" role="tabpanel" hidden>
+    <div class="cabecalho-secao">
+      <div>
+        <h1>Indicadores de atendimento</h1>
+        <p class="muted" id="periodo-descricao"></p>
+      </div>
+      <div class="segmented" role="group" aria-label="Período">
+        <button type="button" data-dias="30" aria-pressed="false">30 dias</button>
+        <button type="button" data-dias="60" aria-pressed="false">60 dias</button>
+        <button type="button" data-dias="90" aria-pressed="true">90 dias</button>
+      </div>
+    </div>
+
+    <section class="grade-kpi" id="kpis" aria-label="Indicadores principais"></section>
+
+    <section class="card" aria-labelledby="titulo-insights">
+      <header><h2 id="titulo-insights">O que os dados dizem</h2><p class="muted">Gerado automaticamente a partir do período selecionado</p></header>
+      <ul class="insights" id="insights"></ul>
+    </section>
+
+    <section class="card">
+      <header>
+        <h2>Chamados abertos x resolvidos por semana</h2>
+        <p class="muted">Quando a linha de abertos fica acima da de resolvidos, o backlog cresce</p>
+      </header>
+      <div class="grafico alto"><canvas id="grafico-semanal" role="img" aria-label="Gráfico de linhas com chamados abertos e resolvidos por semana"></canvas></div>
+      <p class="nota-grafico">* Semana atual, ainda em andamento.</p>
+    </section>
+
+    <div class="grade-2">
+      <section class="card">
+        <header><h2>% dentro do SLA por categoria</h2><p class="muted">Linha tracejada: média geral</p></header>
+        <div class="grafico"><canvas id="grafico-sla-categoria" role="img" aria-label="Percentual de chamados resolvidos dentro do prazo por categoria"></canvas></div>
+      </section>
+      <section class="card">
+        <header><h2>% dentro do SLA por prioridade</h2><p class="muted">Prazo de cada prioridade entre parênteses</p></header>
+        <div class="grafico"><canvas id="grafico-sla-prioridade" role="img" aria-label="Percentual de chamados resolvidos dentro do prazo por prioridade"></canvas></div>
+      </section>
+    </div>
+
+    <div class="grade-2">
+      <section class="card">
+        <header><h2>Backlog por tempo de espera</h2><p class="muted">Chamados ainda não resolvidos</p></header>
+        <div class="grafico"><canvas id="grafico-backlog" role="img" aria-label="Quantidade de chamados não resolvidos por faixa de tempo de espera"></canvas></div>
+      </section>
+      <section class="card">
+        <header><h2>Desempenho por categoria</h2></header>
+        <div class="tabela-wrap"><table id="tabela-categorias"></table></div>
+      </section>
+    </div>
+
+    <section class="card">
+      <header><h2>Desempenho por unidade</h2><p class="muted">Ordenado por volume de chamados</p></header>
+      <div class="tabela-wrap"><table id="tabela-unidades"></table></div>
+    </section>
+  </main>
+
+  <!-- ===================== CHAMADOS ===================== -->
+  <main id="aba-chamados" role="tabpanel" hidden>
+    <div class="cabecalho-secao">
+      <div>
+        <h1>Chamados</h1>
+        <p class="muted" id="resumo-lista"></p>
+      </div>
+      <div style="display: flex; gap: 8px">
+        <button type="button" class="btn" id="exportar-chamados">Exportar CSV</button>
+        <button type="button" class="btn btn-primary" id="abrir-form">Novo chamado</button>
+      </div>
+    </div>
+
+    <section class="card" id="card-form" hidden aria-labelledby="titulo-form">
+      <header><h2 id="titulo-form">Novo chamado</h2></header>
+      <form id="form-chamado" class="formulario" novalidate>
+        <label class="largo">Título <input type="text" name="titulo" maxlength="120" required /></label>
+        <label>Categoria <select name="categoria" required></select></label>
+        <label>Prioridade <select name="prioridade" required></select></label>
+        <label>Unidade <select name="unidade" required></select></label>
+        <label class="largo">E-mail do solicitante <input type="email" name="solicitanteEmail" required /></label>
+        <label class="largo">Descrição <textarea name="descricao" rows="3"></textarea></label>
+        <ul class="erros largo" id="erros-form" hidden></ul>
+        <div class="acoes">
+          <button type="button" class="btn" id="cancelar-form">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Abrir chamado</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="card">
+      <div class="barra-filtros" style="margin-bottom: 12px">
+        <label class="sr-only" for="busca">Buscar</label>
+        <input type="search" id="busca" placeholder="Buscar por ID, título, unidade ou e-mail" />
+        <select id="filtro-status" aria-label="Filtrar por status"></select>
+        <select id="filtro-categoria" aria-label="Filtrar por categoria"></select>
+        <select id="filtro-prioridade" aria-label="Filtrar por prioridade"></select>
+      </div>
+      <div class="tabela-wrap"><table id="tabela-chamados"></table></div>
+      <div style="text-align: center; margin-top: 12px"><button type="button" class="btn" id="mostrar-mais" hidden>Mostrar mais</button></div>
+    </section>
+  </main>
+
+  <!-- ===================== QUALIDADE ===================== -->
+  <main id="aba-qualidade" role="tabpanel" hidden>
+    <div class="cabecalho-secao">
+      <div>
+        <h1>Qualidade dos dados</h1>
+        <p class="muted">Um indicador só é confiável se o dado que o alimenta for. Esta aba audita a base a cada carregamento.</p>
+      </div>
+      <div style="display: flex; gap: 8px">
+        <button type="button" class="btn" id="exportar-inconsistencias">Exportar inconsistências</button>
+        <button type="button" class="btn" id="restaurar-base">Restaurar base de exemplo</button>
+      </div>
+    </div>
+
+    <section class="grade-kpi" id="kpis-qualidade" aria-label="Resumo da qualidade"></section>
+
+    <section class="card">
+      <header><h2>Problemas por regra</h2><p class="muted">Severidade alta: afeta diretamente os indicadores</p></header>
+      <div class="tabela-wrap"><table id="tabela-regras"></table></div>
+    </section>
+
+    <section class="card">
+      <header><h2>Registros com problema</h2><p class="muted" id="resumo-registros"></p></header>
+      <div class="tabela-wrap"><table id="tabela-registros"></table></div>
+    </section>
+  </main>
+
+  <script type="module" src="js/pages/app.js"></script>
+</body>
+</html>

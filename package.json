@@ -1,0 +1,14 @@
+{
+  "name": "central-de-chamados",
+  "version": "1.0.0",
+  "description": "Central de chamados de suporte com painel de indicadores (SLA, backlog, tempo de resolução) e auditoria de qualidade dos dados, em JavaScript puro.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "npx --yes serve .",
+    "test": "node --test \"tests/**/*.test.js\""
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
